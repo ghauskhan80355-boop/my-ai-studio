@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101323">
+<title>My AI Studio</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#101323;color:white;
+ font-family:Arial,sans-serif;
+}
+header{
+ padding:22px 16px;background:#191e33;
+ border-bottom:1px solid #303650;
+}
+header h1{margin:0;color:#a99aff;font-size:25px}
+header p{color:#b8bfd2;margin:8px 0 0}
+.container{padding:16px;max-width:650px;margin:auto}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tab{
+ background:#202741;border:1px solid #39415d;
+ padding:15px 8px;border-radius:12px;
+ color:white;font-size:15px;cursor:pointer
+}
+.tab.active{background:#6853d8;border-color:#9382ff}
+.panel{
+ margin-top:18px;background:#191e33;
+ border:1px solid #303650;border-radius:16px;padding:18px
+}
+h2{font-size:21px;margin:0 0 18px;color:#c5baff}
+label{display:block;margin:16px 0 8px;color:#d5d9e8}
+textarea,select,input{
+ width:100%;padding:13px;border-radius:10px;
+ background:#101629;border:1px solid #414966;
+ color:white;font-size:15px;outline:none
+}
+textarea{height:125px;resize:vertical}
+select{height:46px}
+button.main{
+ width:100%;margin-top:18px;padding:15px;
+ background:#7964ed;border:0;border-radius:11px;
+ color:white;font-size:17px;font-weight:bold;cursor:pointer
+}
+button.secondary{
+ width:100%;margin-top:10px;padding:13px;
+ background:#27304b;border:1px solid #495574;
+ border-radius:10px;color:white;font-size:15px;cursor:pointer
+}
+.note{
+ margin-top:16px;padding:13px;background:#28243c;
+ border-radius:10px;color:#d2cafa;font-size:13px;line-height:1.7
+}
+#result{
+ display:none;margin-top:16px;padding:14px;
+ border-radius:10px;background:#202b3c;
+ color:#d7e8ff;line-height:1.7
+}
+footer{text-align:center;padding:25px;color:#929ab2;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+ <h1>✨ MY AI STUDIO</h1>
+ <p>آپ کا ذاتی AI تخلیقی اسٹوڈیو</p>
+</header>
+
+<div class="container">
+ <div class="tabs">
+  <button class="tab active" onclick="showTab('video',this)">🎬 Video AI</button>
+  <button class="tab" onclick="showTab('image',this)">🖼️ Image AI</button>
+  <button class="tab" onclick="showTab('audio',this)">🎙️ Audio AI</button>
+  <button class="tab" onclick="showTab('story',this)">📖 Story AI</button>
+ </div>
+
+ <section class="panel">
+  <div id="video" class="page">
+   <h2>🎬 ویڈیو جنریٹر</h2>
+   <label>اپنے ویڈیو سین کی تفصیل لکھیں</label>
+   <textarea id="videoPrompt" placeholder="مثلاً: ایک خوبصورت افغان گاؤں، برف باری، ایک آدمی گھر سے باہر نکلتا ہے..."></textarea>
+   <label>ویڈیو کا دورانیہ</label>
+   <select id="duration">
+    <option>5 سیکنڈ</option>
+    <option>10 سیکنڈ</option>
+    <option selected>15 سیکنڈ</option>
+   </select>
+   <label>ویڈیو کوالٹی</label>
+   <select id="resolution">
+    <option>480p</option>
+    <option selected>720p</option>
+    <option>1080p Full HD</option>
+   </select>
+   <label>مکالموں کی زبان</label>
+   <select id="videoLang">
+    <option>دری (کابلی)</option>
+    <option>اردو</option>
+    <option>پشتو</option>
+    <option>عربی</option>
+    <option>English</option>
+   </select>
+   <button class="main" onclick="prepare('videoPrompt','ویڈیو')">ویڈیو تیار کریں</button>
+  </div>
+
+  <div id="image" class="page" style="display:none">
+   <h2>🖼️ امیج جنریٹر</h2>
+   <label>تصویر کی تفصیل لکھیں</label>
+   <textarea id="imagePrompt" placeholder="اپنی پسند کی تصویر بیان کریں..."></textarea>
+   <label>تصویر کا انداز</label>
+   <select id="imageStyle">
+    <option>حقیقت پسندانہ (Realistic)</option>
+    <option>3D Cinematic</option>
+    <option>Cartoon</option>
+    <option>Anime</option>
+   </select>
+   <label>تصویر کا سائز</label>
+   <select id="imageSize">
+    <option>1024 × 1024</option>
+    <option>16:9 Landscape</option>
+    <option>9:16 Portrait</option>
+   </select>
+   <button class="main" onclick="prepare('imagePrompt','تصویر')">تصویر تیار کریں</button>
+  </div>
+
+  <div id="audio" class="page" style="display:none">
+   <h2>🎙️ آڈیو جنریٹر</h2>
+   <label>اپنا ڈائیلاگ یا نریشن لکھیں</label>
+   <textarea id="audioPrompt" placeholder="یہاں وہ الفاظ لکھیں جو آواز میں بولنے ہیں..."></textarea>
+   <label>آواز کی زبان</label>
+   <select id="audioLang">
+    <option>دری (کابلی)</option>
+    <option>اردو</option>
+    <option>پشتو</option>
+    <option>عربی</option>
+    <option>English</option>
+   </select>
+   <label>آواز کا انداز</label>
+   <select id="voice">
+    <option>مردانہ گہری آواز</option>
+    <option>نرم مردانہ آواز</option>
+    <option>زنانہ آواز</option>
+    <option>جذباتی کہانی سنانے والی آواز</option>
+   </select>
+   <button class="main" onclick="prepare('audioPrompt','آڈیو')">آڈیو تیار کریں</button>
+  </div>
+
+  <div id="story" class="page" style="display:none">
+   <h2>📖 اسٹوری میکر</h2>
+   <label>اپنی کہانی کا خیال لکھیں</label>
+   <textarea id="storyPrompt" placeholder="مثلاً: ایک غریب کسان کی سبق آموز کہانی..."></textarea>
+   <label>کہانی کی زبان</label>
+   <select id="storyLang">
+    <option>دری (کابلی)</option>
+    <option>اردو</option>
+    <option>پشتو</option>
+    <option>English</option>
+   </select>
+   <label>کہانی کا انداز</label>
+   <select id="storyStyle">
+    <option>اسلامی اور سبق آموز</option>
+    <option>جذباتی ڈرامہ</option>
+    <option>سسپنس اور ہک والی کہانی</option>
+    <option>بچوں کی کہانی</option>
+   </select>
+   <button class="main" onclick="prepare('storyPrompt','کہانی')">کہانی تیار کریں</button>
+  </div>
+
+  <div id="result"></div>
+  <button class="secondary" onclick="copyPrompt()">📋 پرامپٹ کاپی کریں</button>
+  <button class="secondary" onclick="savePrompt()">⬇️ پرامپٹ محفوظ کریں</button>
+  <div class="note">
+   💡 یہ آپ کے AI اسٹوڈیو کا ابتدائی انٹرفیس ہے۔
+   اصل AI تصویر، ویڈیو اور آڈیو جنریشن کے لیے مفت AI سروسز کو اگلے مرحلے میں جوڑنا ہوگا۔
+  </div>
+ </section>
+</div>
+
+<footer>MY AI STUDIO © 2026 — Personal Creative Studio</footer>
+
+<script>
+let currentPrompt="";
+
+function showTab(id,button){
+ document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+ document.getElementById(id).style.display='block';
+ document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+ button.classList.add('active');
+ document.getElementById('result').style.display='none';
+}
+
+function prepare(id,type){
+ const value=document.getElementById(id).value.trim();
+ if(!value){
+  alert('پہلے اپنی تفصیل لکھیں۔');
+  return;
+ }
+ currentPrompt=value;
+ const result=document.getElementById('result');
+ result.style.display='block';
+ result.innerText=
+ 'آپ کا '+type+' پرامپٹ تیار ہے۔\n\n'+
+ value+
+ '\n\nنوٹ: ابھی AI جنریشن سروس منسلک نہیں ہے۔ اگلے مرحلے میں اسے جوڑیں گے۔';
+}
+
+function copyPrompt(){
+ if(!currentPrompt){
+  alert('پہلے اپنا پرامپٹ لکھیں اور تیار کریں۔');
+  return;
+ }
+ if(navigator.clipboard){
+  navigator.clipboard.writeText(currentPrompt)
+   .then(()=>alert('پرامپٹ کاپی ہوگیا!'))
+   .catch(()=>alert('کاپی نہیں ہوسکا، دوبارہ کوشش کریں۔'));
+ }else{
+  alert('آپ کا براؤزر کاپی کی سہولت نہیں دے رہا۔');
+ }
+}
+
+function savePrompt(){
+ if(!currentPrompt){
+  alert('پہلے اپنا پرامپٹ لکھیں اور تیار کریں۔');
+  return;
+ }
+ const blob=new Blob([currentPrompt],{type:'text/plain;charset=utf-8'});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');
+ a.href=url;
+ a.download='my-ai-prompt.txt';
+ a.click();
+ URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
