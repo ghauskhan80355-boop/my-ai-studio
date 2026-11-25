@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101323">
+<title>My AI Studio</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101323;color:white;font-family:Arial,sans-serif}
+header{padding:22px 16px;background:#191e33;border-bottom:1px solid #303650}
+header h1{margin:0;color:#a99aff;font-size:25px}
+header p{color:#b8bfd2;margin:8px 0 0}
+.container{padding:16px;max-width:650px;margin:auto}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tab{background:#202741;border:1px solid #39415d;padding:15px 8px;border-radius:12px;color:white;font-size:15px;cursor:pointer}
+.tab.active{background:#6853d8;border-color:#9382ff}
+.panel{margin-top:18px;background:#191e33;border:1px solid #303650;border-radius:16px;padding:18px}
+h2{font-size:21px;margin:0 0 18px;color:#c5baff}
+label{display:block;margin:16px 0 8px;color:#d5d9e8}
+textarea,select,input{width:100%;padding:13px;border-radius:10px;background:#101629;border:1px solid #414966;color:white;font-size:15px;outline:none}
+textarea{height:125px;resize:vertical}
+select{height:46px}
+button.main{width:100%;margin-top:18px;padding:15px;background:#7964ed;border:0;border-radius:11px;color:white;font-size:17px;font-weight:bold;cursor:pointer}
+button.secondary{width:100%;margin-top:10px;padding:13px;background:#27304b;border:1px solid #495574;border-radius:10px;color:white;font-size:15px;cursor:pointer}
+.note{margin-top:16px;padding:13px;background:#28243c;border-radius:10px;color:#d2cafa;font-size:13px;line-height:1.7}
+#result{display:none;margin-top:16px;padding:14px;border-radius:10px;background:#202b3c;color:#d7e8ff;line-height:1.7;overflow-wrap:anywhere}
+#result img,#result video{max-width:100%}
+footer{text-align:center;padding:25px;color:#929ab2;font-size:12px}
+polli-connect{display:block;margin-top:12px}
+</style>
+<script defer src="https://cdn.jsdelivr.net/npm/@pollinations/ui@0.1.0-alpha.20/dist/connect.js"></script>
+</head>
+<body>
+<header>
+ <h1>✨ MY AI STUDIO</h1>
+ <p>آپ کا ذاتی AI تخلیقی اسٹوڈیو</p>
+</header>
+<div class="container">
+ <div class="tabs">
+  <button class="tab active" onclick="showTab('video',this)">🎬 Video AI</button>
+  <button class="tab" onclick="showTab('image',this)">🖼️ Image AI</button>
+  <button class="tab" onclick="showTab('audio',this)">🎙️ Audio AI</button>
+  <button class="tab" onclick="showTab('story',this)">📖 Story AI</button>
+ </div>
+ <section class="panel">
+  <div id="video" class="page">
+   <h2>🎬 ویڈیو جنریٹر</h2>
+   <label>اپنے ویڈیو سین کی تفصیل لکھیں</label>
+   <textarea id="videoPrompt" placeholder="مثلاً: ایک خوبصورت افغان گاؤں، برف باری، ایک آدمی گھر سے باہر نکلتا ہے..."></textarea>
+   <label>ویڈیو کا دورانیہ</label>
+   <select id="duration"><option>5 سیکنڈ</option><option>10 سیکنڈ</option><option selected>15 سیکنڈ</option></select>
+   <label>ویڈیو کوالٹی</label>
+   <select id="resolution"><option>480p</option><option selected>720p</option><option>1080p Full HD</option></select>
+   <label>مکالموں کی زبان</label>
+   <select id="videoLang"><option>دری (کابلی)</option><option>اردو</option><option>پشتو</option><option>عربی</option><option>English</option></select>
+   <button class="main" onclick="generateMedia('video')">اصل AI ویڈیو بنائیں</button>
+  </div>
+  <div id="image" class="page" style="display:none">
+   <h2>🖼️ امیج جنریٹر</h2>
+   <label>تصویر کی تفصیل لکھیں</label>
+   <textarea id="imagePrompt" placeholder="اپنی پسند کی تصویر بیان کریں..."></textarea>
+   <label>تصویر کا انداز</label>
+   <select id="imageStyle"><option>حقیقت پسندانہ (Realistic)</option><option>3D Cinematic</option><option>Cartoon</option><option>Anime</option></select>
+   <label>تصویر کا سائز</label>
+   <select id="imageSize"><option>1024 × 1024</option><option>16:9 Landscape</option><option>9:16 Portrait</option></select>
+   <button class="main" onclick="generateMedia('image')">اصل AI تصویر بنائیں</button>
+  </div>
+  <div id="audio" class="page" style="display:none">
+   <h2>🎙️ آڈیو جنریٹر</h2>
+   <label>اپنا ڈائیلاگ یا نریشن لکھیں</label>
+   <textarea id="audioPrompt" placeholder="یہاں وہ الفاظ لکھیں جو آواز میں بولنے ہیں..."></textarea>
+   <label>آواز کی زبان</label>
+   <select id="audioLang"><option>دری (کابلی)</option><option>اردو</option><option>پشتو</option><option>عربی</option><option>English</option></select>
+   <label>آواز کا انداز</label>
+   <select id="voice"><option>مردانہ گہری آواز</option><option>نرم مردانہ آواز</option><option>زنانہ آواز</option><option>جذباتی کہانی سنانے والی آواز</option></select>
+   <button class="main" onclick="prepare('audioPrompt','آڈیو')">آڈیو پرامپٹ تیار کریں</button>
+  </div>
+  <div id="story" class="page" style="display:none">
+   <h2>📖 اسٹوری میکر</h2>
+   <label>اپنی کہانی کا خیال لکھیں</label>
+   <textarea id="storyPrompt" placeholder="مثلاً: ایک غریب کسان کی سبق آموز کہانی..."></textarea>
+   <label>کہانی کی زبان</label>
+   <select id="storyLang"><option>دری (کابلی)</option><option>اردو</option><option>پشتو</option><option>English</option></select>
+   <label>کہانی کا انداز</label>
+   <select id="storyStyle"><option>اسلامی اور سبق آموز</option><option>جذباتی ڈرامہ</option><option>سسپنس اور ہک والی کہانی</option><option>بچوں کی کہانی</option></select>
+   <button class="main" onclick="prepare('storyPrompt','کہانی')">کہانی کا پرامپٹ تیار کریں</button>
+  </div>
+
+  <div class="note">
+   <b>Pollinations AI اکاؤنٹ کنکشن</b><br>
+   نیچے Connect دبائیں اور اپنے Pollinations اکاؤنٹ میں اجازت دیں۔ آپ کے اکاؤنٹ سے صرف آپ کے منظور کردہ بجٹ کے مطابق خرچ ہوگا۔ یہ مفت کریڈٹ کی ضمانت نہیں؛ صفر بیلنس پر جنریشن نہیں چلے گی۔
+  </div>
+  <polli-connect app-key="pk_dA0jpEe725ADukf6" models="image,video" budget="1" expiry="7"></polli-connect>
+  <div id="connectionStatus" class="note">کنکشن چیک ہو رہا ہے۔ اگر بٹن نظر نہ آئے تو صفحہ دوبارہ لوڈ کریں۔</div>
+  <div id="result"></div>
+  <button class="secondary" onclick="copyPrompt()">📋 پرامپٹ کاپی کریں</button>
+  <button class="secondary" onclick="savePrompt()">⬇️ پرامپٹ محفوظ کریں</button>
+  <div class="note">آڈیو اور اسٹوری کے اصل AI فیچرز ابھی منسلک نہیں ہیں؛ فی الحال یہ ان کے پرامپٹس تیار کرتے ہیں۔</div>
+ </section>
+</div>
+<footer>MY AI STUDIO © 2026 — Personal Creative Studio</footer>
+<script>
+let currentPrompt="";
+let pollinationsKey=null;
+function showTab(id,button){
+ document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+ document.getElementById(id).style.display='block';
+ document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+ button.classList.add('active');
+ document.getElementById('result').style.display='none';
+}
+function syncPollinations(){
+ const connect=document.querySelector('polli-connect');
+ if(!connect)return;
+ pollinationsKey=connect.apiKey||null;
+ document.getElementById('connectionStatus').textContent=
+  pollinationsKey?'Pollinations اکاؤنٹ منسلک ہے۔':'اکاؤنٹ منسلک نہیں ہے۔ اوپر Connect دبائیں۔';
+}
+window.addEventListener('DOMContentLoaded',()=>{
+ const connect=document.querySelector('polli-connect');
+ if(connect){
+  connect.addEventListener('change',syncPollinations);
+  setTimeout(syncPollinations,1200);
+ }
+});
+async function generateMedia(type){
+ const prompt=document.getElementById(type==='video'?'videoPrompt':'imagePrompt').value.trim();
+ if(!prompt){alert('پہلے اپنی تفصیل لکھیں۔');return;}
+ syncPollinations();
+ if(!pollinationsKey){alert('پہلے Pollinations Connect بٹن دبائیں اور اپنے اکاؤنٹ کی اجازت دیں۔');return;}
+ const result=document.getElementById('result');
+ result.style.display='block';
+ result.textContent='AI جنریشن جاری ہے۔ براہِ کرم انتظار کریں...';
+ try{
+  let url;
+  if(type==='image'){
+   const size=document.getElementById('imageSize').value;
+   let width=1024,height=1024;
+   if(size.includes('16:9')){width=1024;height=576;}
+   if(size.includes('9:16')){width=576;height=1024;}
+   const style=document.getElementById('imageStyle').value;
+   url='https://gen.pollinations.ai/image/'+encodeURIComponent(prompt+', '+style)+'?model=black-forest-labs/flux.1-schnell&width='+width+'&height='+height;
+  }else{
+   const duration=parseInt(document.getElementById('duration').value,10)||5;
+   url='https://gen.pollinations.ai/video/'+encodeURIComponent(prompt)+'?model=google/veo-3.1-fast&duration='+duration;
+  }
+  const response=await fetch(url,{headers:{Authorization:'Bearer '+pollinationsKey}});
+  if(!response.ok){
+   const message=await response.text();
+   if(response.status===402)throw new Error('آپ کے اکاؤنٹ میں کافی کریڈٹ نہیں ہیں۔ Quests میں مفت کریڈٹ دیکھیں؛ ابھی Top-up نہ کریں۔');
+   if(response.status===401)throw new Error('اجازت ختم یا غلط ہے۔ دوبارہ Connect کریں۔');
+   throw new Error('سروس کا جواب '+response.status+': '+message.slice(0,180));
+  }
+  const blob=await response.blob();
+  if(!blob.size)throw new Error('سروس نے خالی فائل واپس کی۔');
+  const mediaUrl=URL.createObjectURL(blob);
+  result.textContent=type==='image'?'آپ کی تصویر تیار ہوگئی ہے۔':'آپ کی ویڈیو تیار ہوگئی ہے۔';
+  const media=document.createElement(type==='image'?'img':'video');
+  media.src=mediaUrl;media.controls=true;
+  media.style='display:block;width:100%;max-height:520px;object-fit:contain;margin-top:12px;border-radius:12px';
+  result.appendChild(media);
+  const link=document.createElement('a');
+  link.href=mediaUrl;link.download=type==='image'?'my-ai-image.png':'my-ai-video.mp4';
+  link.textContent='⬇️ ڈاؤن لوڈ کریں';
+  link.style='display:block;margin-top:14px;color:#c5baff;font-weight:bold';
+  result.appendChild(link);
+ }catch(error){result.textContent='جنریشن مکمل نہیں ہوئی: '+error.message;}
+}
+function prepare(id,type){
+ const value=document.getElementById(id).value.trim();
+ if(!value){alert('پہلے اپنی تفصیل لکھیں۔');return;}
+ currentPrompt=value;
+ const result=document.getElementById('result');
+ result.style.display='block';
+ result.innerText='آپ کا '+type+' پرامپٹ تیار ہے۔\n\n'+value;
+}
+function copyPrompt(){
+ if(!currentPrompt){alert('پہلے اپنا پرامپٹ تیار کریں۔');return;}
+ navigator.clipboard.writeText(currentPrompt).then(()=>alert('پرامپٹ کاپی ہوگیا!')).catch(()=>alert('کاپی نہیں ہوسکا۔'));
+}
+function savePrompt(){
+ if(!currentPrompt){alert('پہلے اپنا پرامپٹ تیار کریں۔');return;}
+ const blob=new Blob([currentPrompt],{type:'text/plain;charset=utf-8'});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');a.href=url;a.download='my-ai-prompt.txt';a.click();
+ URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
